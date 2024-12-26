@@ -1,57 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FHE Encryption</title>
-    <link rel="stylesheet" href="style.css" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced FHE Demo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  </head>
-  <body>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
     <div class="container">
-      <h1>Understanding Fully Homomorphic Encryption (FHE)</h1>
-
-      <div class="section">
-        <h2>Encryption Process</h2>
-        <div class="animation-container" id="encryption-container">
-          <div class="data-box" id="plaintext">123</div>
-          <div class="key" id="public-key">PK</div>
-        </div>
-        <div class="controls">
-          <button onclick="demonstrateEncryption()">Show Encryption</button>
-          <button onclick="resetEncryption()">Reset</button>
-        </div>
-        <div class="explanation">
-          <p>
-            FHE encryption transforms plaintext into ciphertext using a public
-            key while preserving mathematical properties.
-          </p>
-        </div>
         <div class="section">
-          <h2>Homomorphic Operations</h2>
-          <div class="demo-input">
-            <input type="number" id="value1" placeholder="First number" />
-            <select id="operation">
-              <option value="add">+</option>
-              <option value="subtract">−</option>
-              <option value="multiply">×</option>
-              <option value="divide">÷</option>
-              <option value="power">^</option>
-              <option value="mod">%</option>
-            </select>
-            <input type="number" id="value2" placeholder="Second number" />
-            <button onclick="demonstrateOperation()">Calculate</button>
-          </div>
-          <div class="animation-container" id="operation-container">
-            <div class="data-box" id="encrypted1"></div>
-            <div class="data-box" id="encrypted2"></div>
-            <div class="data-box" id="result"></div>
-          </div>
-          <div id="computation-display"></div>
+            <h2>Advanced FHE Implementation</h2>
+            
+            <div class="parameters">
+                <div>
+                    <label>Plaintext:</label>
+                    <input type="number" id="plaintext" value="42">
+                </div>
+                <div>
+                    <label>Modulus (p):</label>
+                    <input type="number" id="modulus" value="97">
+                </div>
+                <div>
+                    <label>Generator (g):</label>
+                    <input type="number" id="generator" value="5">
+                </div>
+            </div>
+
+            <div class="animation-stage" id="stage"></div>
+
+            <div class="controls">
+                <button onclick="generateKeys()">Generate Keys</button>
+                <button onclick="encryptValue()">Encrypt</button>
+                <button onclick="performHomomorphicOp()">Homomorphic Operation</button>
+                <button onclick="decryptResult()">Decrypt</button>
+            </div>
+
+            <div class="key-info" id="keyInfo"></div>
+            <div class="logs" id="logs"></div>
         </div>
-      </div>
     </div>
 
     <script src="app.js"></script>
-  </body>
+</body>
 </html>
