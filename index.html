@@ -27,21 +27,28 @@
             key while preserving mathematical properties.
           </p>
         </div>
-      </div>
-
-      <div class="section">
-        <h2>Homomorphic Operations</h2>
-        <div class="demo-input">
-          <input type="number" id="value1" placeholder="First number" />
-          <input type="number" id="value2" placeholder="Second number" />
-          <button onclick="demonstrateOperation()">Calculate</button>
+        <div class="section">
+          <h2>Homomorphic Operations</h2>
+          <div class="demo-input">
+            <input type="number" id="value1" placeholder="First number" />
+            <select id="operation">
+              <option value="add">+</option>
+              <option value="subtract">−</option>
+              <option value="multiply">×</option>
+              <option value="divide">÷</option>
+              <option value="power">^</option>
+              <option value="mod">%</option>
+            </select>
+            <input type="number" id="value2" placeholder="Second number" />
+            <button onclick="demonstrateOperation()">Calculate</button>
+          </div>
+          <div class="animation-container" id="operation-container">
+            <div class="data-box" id="encrypted1"></div>
+            <div class="data-box" id="encrypted2"></div>
+            <div class="data-box" id="result"></div>
+          </div>
+          <div id="computation-display"></div>
         </div>
-        <div class="animation-container" id="operation-container">
-          <div class="data-box" id="encrypted1"></div>
-          <div class="data-box" id="encrypted2"></div>
-          <div class="data-box" id="result"></div>
-        </div>
-        <div id="computation-display"></div>
       </div>
     </div>
 
