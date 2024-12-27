@@ -144,3 +144,11 @@ function resetDemo() {
   messageInput.disabled = false;
   document.getElementById("explanation").innerHTML = "";
 }
+function startDemoProcess() {
+  const steps = document.querySelectorAll(".step");
+  steps.forEach((step, index) => {
+    setTimeout(() => {
+      step.classList.add("show");
+    }, index * 1000);
+  });
+}

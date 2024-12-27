@@ -91,3 +91,22 @@ input {
   font-size: 14px;
   font-weight: bold;
 }
+.step {
+  margin: 20px 0;
+  padding: 15px;
+  border-left: 4px solid #2196f3;
+  background: #f8f8f8;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.5s ease;
+}
+.step.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+.math {
+  font-family: monospace;
+  background: #e8e8e8;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
