@@ -1,177 +1,146 @@
-class AdvancedFHE {
-    constructor(modulus, generator) {
-        this.p = modulus;        
-        this.g = generator;      
-        this.privateKey = null;
-        this.publicKey = null;
-    }
-
-    
-    generateKeyPair() {
-        
-        this.privateKey = Math.floor(Math.random() * (this.p - 2)) + 1;
-        
-        this.publicKey = this.modPow(this.g, this.privateKey, this.p);
-        return {
-            publicKey: this.publicKey,
-            privateKey: this.privateKey
-        };
-    }
-
-
-    modPow(base, exponent, modulus) {
-        if (modulus === 1) return 0;
-        let result = 1;
-        base = base % modulus;
-        while (exponent > 0) {
-            if (exponent % 2 === 1) {
-                result = (result * base) % modulus;
-            }
-            base = (base * base) % modulus;
-            exponent = Math.floor(exponent / 2);
-        }
-        return result;
-    }
-
-    encrypt(message) {
-        const r = Math.floor(Math.random() * (this.p - 2)) + 1; 
-        const c1 = this.modPow(this.g, r, this.p);
-        const s = this.modPow(this.publicKey, r, this.p);
-        const c2 = (message * s) % this.p;
-        return { c1, c2 };
-    }
-
-    decrypt(ciphertext) {
-        const s = this.modPow(ciphertext.c1, this.privateKey, this.p);
-        const sInverse = this.modPow(s, this.p - 2, this.p);
-        return (ciphertext.c2 * sInverse) % this.p;
-    }
-
-    homomorphicMultiply(ct1, ct2) {
-        return {
-            c1: (ct1.c1 * ct2.c1) % this.p,
-            c2: (ct1.c2 * ct2.c2) % this.p
-        };
-    }
-}
-
-let fhe;
-let currentCiphertext;
-let animationElements = [];
-
-function log(message) {
-    const logs = document.getElementById('logs');
-    logs.innerHTML += `${message}\n`;
-    logs.scrollTop = logs.scrollHeight;
-}
-
-function createAnimationElement(text, color) {
-    const element = document.createElement('div');
-    element.className = 'encryption-element';
-    element.style.backgroundColor = color;
-    element.textContent = text;
-    document.getElementById('stage').appendChild(element);
-    return element;
-}
-
 function generateKeys() {
-    const modulus = parseInt(document.getElementById('modulus').value);
-    const generator = parseInt(document.getElementById('generator').value);
+  const p = 61;
+  const q = 53;
+  const n = p * q;
+  const phi = (p - 1) * (q - 1);
+  const e = 17;
 
-    fhe = new AdvancedFHE(modulus, generator);
-    const keys = fhe.generateKeyPair();
+  let d = 0;
+  for (let i = 0; i < phi; i++) {
+    if ((e * i) % phi === 1) {
+      d = i;
+      break;
+    }
+  }
 
-    document.getElementById('keyInfo').innerHTML = `
-        Public Key: ${keys.publicKey}<br>
-        Private Key: ${keys.privateKey}<br>
-        Modulus: ${modulus}<br>
-        Generator: ${generator}
-    `;
-
-    log(`Generated key pair with modulus ${modulus}`);
+  return {
+    publicKey: { e, n },
+    privateKey: { d, n },
+  };
 }
 
-function encryptValue() {
-    if (!fhe) {
-        log('Please generate keys first');
-        return;
-    }
+const keys = generateKeys();
+document.getElementById(
+  "publicKey"
+).textContent = `Public Key (e,n): (${keys.publicKey.e}, ${keys.publicKey.n})`;
+document.getElementById(
+  "privateKey"
+).textContent = `Private Key (d,n): (${keys.privateKey.d}, ${keys.privateKey.n})`;
 
-    const plaintext = parseInt(document.getElementById('plaintext').value);
-    currentCiphertext = fhe.encrypt(plaintext);
-
-    const plaintextElement = createAnimationElement(
-        `Plaintext: ${plaintext}`, 
-        '#3498db'
-    );
-    const ciphertextElement = createAnimationElement(
-        `Ciphertext: (${currentCiphertext.c1}, ${currentCiphertext.c2})`,
-        '#e74c3c'
-    );
-
-    gsap.set(plaintextElement, { x: 50, y: 50 });
-    gsap.set(ciphertextElement, { x: 50, y: 200, opacity: 0 });
-
-    gsap.to(plaintextElement, {
-        y: 125,
-        duration: 1,
-        ease: "power2.inOut"
-    });
-
-    gsap.to(ciphertextElement, {
-        opacity: 1,
-        duration: 1,
-        delay: 1
-    });
-
-    animationElements = [plaintextElement, ciphertextElement];
-    log(`Encrypted ${plaintext} to (${currentCiphertext.c1}, ${currentCiphertext.c2})`);
+function encrypt(message, publicKey) {
+  const encrypted = [];
+  for (let i = 0; i < message.length; i++) {
+    const charCode = message.charCodeAt(i);
+    const encryptedChar =
+      BigInt(charCode) ** BigInt(publicKey.e) % BigInt(publicKey.n);
+    encrypted.push(encryptedChar.toString());
+  }
+  return encrypted.join(",");
 }
 
-function performHomomorphicOp() {
-    if (!currentCiphertext) {
-        log('Please encrypt a value first');
-        return;
-    }
+function decrypt(ciphertext, privateKey) {
+  const encryptedChars = ciphertext.split(",");
+  let decrypted = "";
 
-    const ct2 = fhe.encrypt(2); 
-    const result = fhe.homomorphicMultiply(currentCiphertext, ct2);
-
-    const operationElement = createAnimationElement(
-        `Result: (${result.c1}, ${result.c2})`,
-        '#2ecc71'
+  for (let i = 0; i < encryptedChars.length; i++) {
+    const charCode = Number(
+      BigInt(encryptedChars[i]) ** BigInt(privateKey.d) % BigInt(privateKey.n)
     );
-
-    gsap.set(operationElement, { x: 250, y: 200, scale: 0 });
-    gsap.to(operationElement, {
-        scale: 1,
-        duration: 1
-    });
-
-    currentCiphertext = result;
-    animationElements.push(operationElement);
-    log(`Performed homomorphic multiplication`);
+    decrypted += String.fromCharCode(charCode);
+  }
+  return decrypted;
 }
 
-function decryptResult() {
-    if (!currentCiphertext) {
-        log('No ciphertext to decrypt');
-        return;
-    }
+function createMessageElement(className, text) {
+  const el = document.createElement("div");
+  el.className = `message-box ${className}`;
+  el.textContent = text;
+  return el;
+}
 
-    const decrypted = fhe.decrypt(currentCiphertext);
-    const decryptElement = createAnimationElement(
-        `Decrypted: ${decrypted}`,
-        '#9b59b6'
-    );
+function startDemo() {
+  const container = document.getElementById("animationContainer");
+  const message = document.getElementById("messageInput").value.trim();
+  const status = document.getElementById("status");
+  const startButton = document.getElementById("startButton");
+  const resetButton = document.getElementById("resetButton");
+  const messageInput = document.getElementById("messageInput");
 
-    gsap.set(decryptElement, { x: 450, y: 50, opacity: 0 });
-    gsap.to(decryptElement, {
-        opacity: 1,
-        y: 200,
-        duration: 1
-    });
+  if (!message) {
+    status.textContent = "Please enter a message first";
+    return;
+  }
 
-    animationElements.push(decryptElement);
-    log(`Decrypted result: ${decrypted}`);
+  messageInput.disabled = true;
+  startButton.disabled = true;
+
+  container.querySelectorAll(".message-box").forEach((el) => el.remove());
+
+  const originalEl = createMessageElement(
+    "original",
+    `Original Message: ${message}`
+  );
+  const encryptedMessage = encrypt(message, keys.publicKey);
+  const encryptedEl = createMessageElement(
+    "encrypted",
+    `Encrypted Message: ${encryptedMessage}`
+  );
+  const decryptedMessage = decrypt(encryptedMessage, keys.privateKey);
+  const decryptedEl = createMessageElement(
+    "decrypted",
+    `Decrypted Message: ${decryptedMessage}`
+  );
+
+  container.appendChild(originalEl);
+  container.appendChild(encryptedEl);
+  container.appendChild(decryptedEl);
+
+  setTimeout(() => {
+    status.textContent = "Starting with the original message...";
+    originalEl.classList.add("show");
+  }, 500);
+
+  setTimeout(() => {
+    status.textContent = "Encrypting using public key...";
+    encryptedEl.classList.add("show");
+  }, 2000);
+
+  setTimeout(() => {
+    status.textContent = "Decrypting using private key...";
+    decryptedEl.classList.add("show");
+  }, 3500);
+
+  setTimeout(() => {
+    status.textContent = "Encryption/Decryption cycle complete!";
+    startButton.style.display = "none";
+    resetButton.style.display = "inline-block";
+    resetButton.disabled = false;
+  }, 5000);
+
+  document.getElementById("explanation").innerHTML = `
+                <h3>Process Explanation:</h3>
+                <p>1. Original message: "${message}"</p>
+                <p>2. Each character is encrypted separately using public key (e=${keys.publicKey.e}, n=${keys.publicKey.n})</p>
+                <p>3. Encrypted form (comma-separated values for each character): ${encryptedMessage}</p>
+                <p>4. Each value is decrypted using private key (d=${keys.privateKey.d}, n=${keys.privateKey.n})</p>
+                <p>5. Recovered original message: "${decryptedMessage}"</p>
+        `;
+}
+
+function resetDemo() {
+  const container = document.getElementById("animationContainer");
+  const status = document.getElementById("status");
+  const startButton = document.getElementById("startButton");
+  const resetButton = document.getElementById("resetButton");
+  const messageInput = document.getElementById("messageInput");
+
+  container.querySelectorAll(".message-box").forEach((el) => el.remove());
+
+  status.textContent = "Enter a message and click Start Demo";
+  startButton.style.display = "inline-block";
+  startButton.disabled = false;
+  resetButton.style.display = "none";
+  messageInput.value = "";
+  messageInput.disabled = false;
+  document.getElementById("explanation").innerHTML = "";
 }
