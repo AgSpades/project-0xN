@@ -1,47 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced FHE Demo</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RSA Encryption Visualization</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-    
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
     <div class="container">
-        <div class="section">
-            <h2>Advanced FHE Implementation</h2>
-            
-            <div class="parameters">
-                <div>
-                    <label>Plaintext:</label>
-                    <input type="number" id="plaintext" value="42">
-                </div>
-                <div>
-                    <label>Modulus (p):</label>
-                    <input type="number" id="modulus"  value="97">
-                </div>
-                <div>
-                    <label>Generator (g):</label>
-                    <input type="number" id="generator"  value="5">
-                </div>
-            </div>
+      <h1>RSA Encryption and Decryption Demo</h1>
 
-            <div class="animation-stage" id="stage"></div>
+      <div class="key-display">
+        <h3>Generated Keys:</h3>
+        <div id="publicKey">Public Key (e,n): Loading...</div>
+        <div id="privateKey">Private Key (d,n): Loading...</div>
+      </div>
 
-            <div class="controls">
-                <button onclick="generateKeys()">Generate Keys</button>
-                <button onclick="encryptValue()">Encrypt</button>
-                <button onclick="performHomomorphicOp()">Homomorphic Operation</button>
-                <button onclick="decryptResult()">Decrypt</button>
-            </div>
+      <div class="input-section">
+        <input
+          type="text"
+          id="messageInput"
+          placeholder="Enter a message"
+          maxlength="50"
+        />
+        <button id="startButton" onclick="startDemo()">Start Demo</button>
+        <button id="resetButton" onclick="resetDemo()" style="display: none">
+          Reset Demo
+        </button>
+      </div>
 
-            <div class="key-info" id="keyInfo"></div>
-            <div class="logs" id="logs"></div>
+      <div class="animation-container" id="animationContainer">
+        <div class="status" id="status">
+          Enter a message and click Start Demo
         </div>
+      </div>
+
+      <div id="explanation"></div>
     </div>
 
     <script src="app.js"></script>
-</body>
+  </body>
 </html>
